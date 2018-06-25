@@ -14,10 +14,14 @@ public class StepActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_step);
 
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container_Step, new StepFragment())
+                    .commit();
+        } else {
 
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.container_Step, new StepFragment())
-                .commit();
+        }
+
     }
 
 }

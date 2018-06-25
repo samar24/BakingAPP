@@ -196,7 +196,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
             e.printStackTrace();
         }
 
-        if(progressDialog!=null)
+       // if(progressDialog!=null)
             progressDialog.dismiss();
         adapter = new MainRecipesAdapter(getActivity(), mRecipesData);
 

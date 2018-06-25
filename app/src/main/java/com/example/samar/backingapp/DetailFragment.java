@@ -124,6 +124,9 @@ public class DetailFragment extends Fragment implements StepsAdapter.StepAdapter
             Toast.makeText(getActivity(),"LANDSCAPE",Toast.LENGTH_LONG);
             StepFragment SF = new StepFragment();
             SF.setStepIndex(step);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("StepObject", (Parcelable) step);
+            SF.setArguments(bundle);
             getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.Step, SF)
                     .commit();

@@ -37,8 +37,7 @@ import com.google.android.exoplayer2.util.Util;
  * Created by Samar on 20/06/2018.
  */
 
-public class StepFragment extends Fragment implements View.OnClickListener, ExoPlayer.EventListener {
-
+public class StepFragment extends Fragment  implements View.OnClickListener, ExoPlayer.EventListener {
 
 
     private static final String TAG = StepFragment.class.getSimpleName();
@@ -47,10 +46,10 @@ public class StepFragment extends Fragment implements View.OnClickListener, ExoP
     private SimpleExoPlayerView mPlayerView;
     private static MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
-    private TextView DescriptionTextView;
-    private TextView ShortDescriptionTextView;
-    private ImageView PosterImageView;
-    private Step_Item step;
+    private TextView mDescriptionTextView;
+    private TextView mShortDescriptionTextView;
+    private ImageView mPosterImageView;
+    private Step_Item mStepIndex;
     public StepFragment() {
         // Required empty public constructor
     }
@@ -63,30 +62,33 @@ public class StepFragment extends Fragment implements View.OnClickListener, ExoP
 
         View rootView = inflater.inflate(R.layout.fragment_step, container, false);
 
-        ShortDescriptionTextView=(TextView)rootView.findViewById(R.id.step_name);
-        DescriptionTextView=(TextView)rootView.findViewById(R.id.step_description);
-        PosterImageView=(ImageView)rootView.findViewById(R.id.step_poster) ;
-
+        mShortDescriptionTextView=(TextView)rootView.findViewById(R.id.step_name);
+        mDescriptionTextView=(TextView)rootView.findViewById(R.id.step_description);
+        mPosterImageView=(ImageView)rootView.findViewById(R.id.step_poster) ;
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            mStepIndex = (Step_Item) bundle.getSerializable("StepObject");
+        }
         Intent intent = getActivity().getIntent();
-        Bundle bundle = intent.getExtras();
+        Bundle bundle1 = intent.getExtras();
 
-        if(step==null) {
-            step = (Step_Item) bundle.getParcelable("StepObject");
+        if(mStepIndex==null) {
+            if(bundle1!=null){
+            mStepIndex = (Step_Item) bundle1.getSerializable("StepObject");}
         }
 
-        ShortDescriptionTextView.setText(step.getshortDescription());
-        DescriptionTextView.setText(step.getdescription());
+        mShortDescriptionTextView.setText(mStepIndex.getshortDescription());
+        mDescriptionTextView.setText(mStepIndex.getdescription());
 
-        if(!step.getthumbnailURL().equals(""))
-            Glide.with(getContext()).load(step.getthumbnailURL()).into(PosterImageView);
+        if(!mStepIndex.getthumbnailURL().equals(""))
+            Glide.with(getContext()).load(mStepIndex.getthumbnailURL()).into(mPosterImageView);
 
         mPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.playerView);
         // Initialize the Media Session.
         initializeMediaSession();
 
         // Initialize the player.
-        Log.d("URL",step.getvideoURL());
-        initializePlayer(Uri.parse(step.getvideoURL()));
+        initializePlayer(Uri.parse(mStepIndex.getvideoURL()));
 
 
         return rootView;
@@ -129,22 +131,22 @@ public class StepFragment extends Fragment implements View.OnClickListener, ExoP
     }
 
     @Override
-    public void onLoadingChanged(boolean isLoading) {
-
-    }
-
-    @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
-    }
-
-    @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
 
     }
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
 
     }
 
@@ -176,6 +178,11 @@ public class StepFragment extends Fragment implements View.OnClickListener, ExoP
 
 
     }
+
+    /**
+     * Initialize ExoPlayer.
+     * @param mediaUri The URI of the sample to play.
+     */
     private void initializePlayer(Uri mediaUri) {
         if (mExoPlayer == null) {
             // Create an instance of the ExoPlayer.
@@ -211,28 +218,51 @@ public class StepFragment extends Fragment implements View.OnClickListener, ExoP
         releasePlayer();
         mMediaSession.setActive(false);
     }
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMediaSession.setActive(false);
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mMediaSession.setActive(true);
-    }
+
+
+
 
     @Override
     public void onClick(View v) {
 
     }
 
-    public void setStepIndex(Step_Item step) {
-        step=step;
+    public void setStepIndex(Step_Item steps) {
+        mStepIndex=steps;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mMediaSession.setActive(false);
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            initializePlayer(Uri.parse(mStepIndex.getvideoURL()));
+        }
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMediaSession.setActive(true);
+        if ((Util.SDK_INT <= 23 || mExoPlayer == null)) {
+            initializePlayer(Uri.parse(mStepIndex.getvideoURL()));
+        }
+    }
 
 }
