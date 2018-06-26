@@ -67,16 +67,15 @@ public class StepFragment extends Fragment  implements View.OnClickListener, Exo
         mPosterImageView=(ImageView)rootView.findViewById(R.id.step_poster) ;
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            mStepIndex = (Step_Item) bundle.getSerializable("StepObject");
+            mStepIndex = (Step_Item) bundle.getParcelable("StepObject");
         }
         Intent intent = getActivity().getIntent();
         Bundle bundle1 = intent.getExtras();
 
         if(mStepIndex==null) {
             if(bundle1!=null){
-            mStepIndex = (Step_Item) bundle1.getSerializable("StepObject");}
+            mStepIndex = (Step_Item) bundle1.getParcelable("StepObject");}
         }
-
         mShortDescriptionTextView.setText(mStepIndex.getshortDescription());
         mDescriptionTextView.setText(mStepIndex.getdescription());
 
@@ -215,7 +214,6 @@ public class StepFragment extends Fragment  implements View.OnClickListener, Exo
     @Override
     public void onDestroy() {
         super.onDestroy();
-        releasePlayer();
         mMediaSession.setActive(false);
     }
 
